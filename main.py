@@ -1,7 +1,7 @@
 from git_utils import clone_github_repo
 from doc_generator import generate_documentation
 from file_utils import create_directory, move_files_to_directory
-from config import OPENAI_API_KEY, MODEL_NAME
+from config import OPENAI_API_KEY, model_name
 
 # Now you can use OPENAI_API_KEY and MODEL_NAME in your script
 
