@@ -29,7 +29,12 @@ Do not just list the files and folders in this folder.
 """
 
 chatPrompt = ""
+MAX_TOKENS = 3800  # OpenAI maximum is 4096. Leave some room for the prompt.
 
+def is_text_file(file_path):
+    text_extensions = ['.txt', '.md', '.py', '.java', '.cpp', '.h', '.html', '.css', '.js']
+    ext = os.path.splitext(file_path)[1]
+    return ext.lower() in text_extensions
 
 def chunkify(input_text, max_tokens):
     words = input_text.split(' ')
@@ -45,22 +50,23 @@ def chunkify(input_text, max_tokens):
     return chunks
 
 def generate_file_documentation(file_path):
-    with open(file_path, 'r') as file:
-        try:
-            code = file.read()
-        except UnicodeDecodeError:
-            print(f"Skipping non-text file: {file_path}")
-            return
-
-    chunks = chunkify(code, max_tokens)
+    if not is_text_file(file_path):
+        print(f'Skipping non-text file: {file_path}')
+        return None
+    with open(file_path, 'r', errors='ignore') as file:
+        code = file.read()
+        chunks = chunkify(code, MAX_TOKENS)
     documentation_parts = []
     for chunk in chunks:
-        prompt = filePrompt + chunk
-        completion = openai.Completion.create(engine=model_name, prompt=prompt, temperature=0.2, max_tokens=300)
-        documentation_parts.append(completion['choices'][0]['text']['content'])
-    
-    documentation = ' '.join(documentation_parts)
-    return documentation
+        prompt = f'{filePrompt} {chunk}'
+        try:
+            response = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.2, max_tokens=300)
+            documentation_parts.append(response.choices[0].text.strip())
+        except Exception as e:
+            print(f"An error occurred: {e}")
+    documentation = '\n\n'.join(documentation_parts)
+    return documentation.strip()
+
 
 
 def generate_folder_documentation(folder_path):
