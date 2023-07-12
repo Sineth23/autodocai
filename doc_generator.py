@@ -44,16 +44,23 @@ def chunkify(input_text, max_tokens):
     chunks.append(current_chunk)
     return chunks
 
-def generate_file_documentation(file_path, max_tokens=2048):
+def generate_file_documentation(file_path):
     with open(file_path, 'r') as file:
-        code = file.read()
+        try:
+            code = file.read()
+        except UnicodeDecodeError:
+            print(f"Skipping non-text file: {file_path}")
+            return
+
     chunks = chunkify(code, max_tokens)
     documentation_parts = []
     for chunk in chunks:
         prompt = filePrompt + chunk
-        response = openai.Completion.create(engine=model_name, prompt=prompt, temperature=0.2, max_tokens=300)
-        documentation_parts.append(response.choices[0].text.strip())
-    return "\n".join(documentation_parts)
+        completion = openai.Completion.create(engine=model_name, prompt=prompt, temperature=0.2, max_tokens=300)
+        documentation_parts.append(completion['choices'][0]['text']['content'])
+    
+    documentation = ' '.join(documentation_parts)
+    return documentation
 
 
 def generate_folder_documentation(folder_path):
