@@ -30,13 +30,16 @@ chatPrompt = ""
 def generate_file_documentation(file_path):
     with open(file_path, 'r') as file:
         code = file.read()
-    documentation = llm.ask_question(PromptTemplate(filePrompt), code)
+    prompt = PromptTemplate(filePrompt) + code
+    documentation = llm.create_completion(prompt, temperature=0.2, max_tokens=300)
     return documentation
 
 def generate_folder_documentation(folder_path):
     files = [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
-    documentation = llm.ask_question(PromptTemplate(folderPrompt), ' '.join(files))
+    prompt = PromptTemplate(folderPrompt) + ' '.join(files)
+    documentation = llm.create_completion(prompt, temperature=0.2, max_tokens=400)
     return documentation
+
 
 def generate_documentation(local_dir):
     for root, dirs, files in os.walk(local_dir):
