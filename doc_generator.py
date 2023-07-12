@@ -29,29 +29,16 @@ Do not just list the files and folders in this folder.
 """
 
 chatPrompt = ""
-def generate_file_documentation(file_path):
-    with open(file_path, 'r', errors='ignore') as file:
+def generate_file_documentation(file_path, max_tokens=2048):
+    with open(file_path, 'r') as file:
         code = file.read()
-        
-    # Define the maximum tokens for each request
-    max_tokens = 2048  # Modify this as needed
-
-    # Convert the code into list of tokens
-    tokens = code.split()
-
-    # Initialize list to hold generated documentation parts
-    doc_parts = []
-
-    # Process the code in chunks of max_tokens
-    for i in range(0, len(tokens), max_tokens):
-        chunk = ' '.join(tokens[i:i + max_tokens])
-        prompt = PromptTemplate(filePrompt) + chunk
-        documentation = llm.create_completion(prompt, temperature=0.2, max_tokens=max_tokens)
-        doc_parts.append(documentation['choices'][0]['text'])
-
-    # Join all parts of the documentation
-    full_documentation = ' '.join(doc_parts)
-    return full_documentation
+    chunks = chunkify(code, max_tokens)
+    documentation_parts = []
+    for chunk in chunks:
+        prompt = filePrompt + chunk
+        response = openai.Completion.create(engine=model_name, prompt=prompt, temperature=0.2, max_tokens=300)
+        documentation_parts.append(response.choices[0].text.strip())
+    return "\n".join(documentation_parts)
 
 
 def generate_folder_documentation(folder_path):
