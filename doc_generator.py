@@ -29,8 +29,12 @@ Do not just list the files and folders in this folder.
 chatPrompt = ""
 
 def generate_file_documentation(file_path):
-    with open(file_path, 'r') as file:
-        code = file.read()
+    try:
+        with open(file_path, 'r') as file:
+            code = file.read()
+    except UnicodeDecodeError:
+        with open(file_path, 'r', encoding='ISO-8859-1') as file:
+            code = file.read()
     prompt = filePrompt + code
     documentation = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.2, max_tokens=300)
     return documentation.choices[0].text.strip()
