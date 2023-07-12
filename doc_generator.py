@@ -29,6 +29,21 @@ Do not just list the files and folders in this folder.
 """
 
 chatPrompt = ""
+
+
+def chunkify(input_text, max_tokens):
+    words = input_text.split(' ')
+    chunks = []
+    current_chunk = ''
+    for word in words:
+        if len((current_chunk + ' ' + word).split(' ')) <= max_tokens:
+            current_chunk += ' ' + word
+        else:
+            chunks.append(current_chunk)
+            current_chunk = word
+    chunks.append(current_chunk)
+    return chunks
+
 def generate_file_documentation(file_path, max_tokens=2048):
     with open(file_path, 'r') as file:
         code = file.read()
