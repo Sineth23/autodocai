@@ -68,16 +68,21 @@ def generate_folder_documentation(folder_path):
     prompt = folderPrompt + ' '.join(files)
     documentation = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.2, max_tokens=400)
     return documentation.choices[0].text.strip()
-
+    
 def generate_documentation(local_dir):
     for root, dirs, files in os.walk(local_dir):
         for file in files:
             file_path = os.path.join(root, file)
             documentation = generate_file_documentation(file_path)
-            with open(file_path + '.md', 'w') as doc_file:
-                doc_file.write(documentation)
+            # Only write to the file if documentation is not None
+            if documentation is not None:
+                with open(file_path + '.md', 'w') as doc_file:
+                    doc_file.write(documentation)
         if dirs:
             documentation = generate_folder_documentation(root)
-            with open(root + '/README.md', 'w') as doc_file:
-                doc_file.write(documentation)
+            # Only write to the file if documentation is not None
+            if documentation is not None:
+                with open(root + '/README.md', 'w') as doc_file:
+                    doc_file.write(documentation)
+
 
