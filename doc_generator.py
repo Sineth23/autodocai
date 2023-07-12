@@ -41,12 +41,12 @@ def generate_folder_documentation(folder_path):
 def generate_documentation(local_dir):
     for root, dirs, files in os.walk(local_dir):
         for file in files:
-            if file.endswith('.py'):
-                file_path = os.path.join(root, file)
-                documentation = generate_file_documentation(file_path)
-                with open(file_path + '.md', 'w') as doc_file:
-                    doc_file.write(documentation)
+            file_path = os.path.join(root, file)
+            documentation = generate_file_documentation(file_path)
+            with open(file_path + '.md', 'w') as doc_file:
+                doc_file.write(documentation)
         if dirs:
             documentation = generate_folder_documentation(root)
             with open(root + '/README.md', 'w') as doc_file:
                 doc_file.write(documentation)
+
