@@ -3,6 +3,7 @@ from langchain import PromptTemplate, LLMChain
 from langchain.llms import OpenAI
 from config import model_name
 from dotenv import load_dotenv
+import openai
 
 load_dotenv()
 llm = OpenAI(api_key=os.getenv("OPENAI_API_KEY"), temperature=0.2)
@@ -31,16 +32,14 @@ def generate_file_documentation(file_path):
     with open(file_path, 'r') as file:
         code = file.read()
     prompt = filePrompt + code
-    documentation = llm.create_completion(prompt, temperature=0.2, max_tokens=300)
-    return documentation
+    documentation = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.2, max_tokens=300)
+    return documentation.choices[0].text.strip()
 
 def generate_folder_documentation(folder_path):
     files = [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
     prompt = folderPrompt + ' '.join(files)
-    documentation = llm.create_completion(prompt, temperature=0.2, max_tokens=400)
-    return documentation
-
-
+    documentation = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.2, max_tokens=400)
+    return documentation.choices[0].text.strip()
 
 def generate_documentation(local_dir):
     for root, dirs, files in os.walk(local_dir):
