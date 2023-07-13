@@ -14,7 +14,7 @@ def main():
         print("Repository cloned.")
         generate_documentation(local_dir)
         print("Documentation generated.")
-        create_directory('autodocs')
+        #create_directory('autodocs')
         move_files_to_directory(local_dir, 'autodocs')
         print("Documentation moved to autodocs directory.")
 
