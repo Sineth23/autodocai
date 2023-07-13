@@ -12,41 +12,38 @@ load_dotenv()
 llm = OpenAI(api_key=os.getenv("OPENAI_API_KEY"), temperature=0.2)
 
 filePrompt = """
-# Title/Heading: File Documentation
+# Title: File Documentation
 
-Introduction: Provide a brief introduction to the code file. Explain its purpose, functionality, and any important background information.
+Introduction: Provide a brief introduction about the code file. Explain its purpose, functionality, and any important background information.
 
 Usage: Describe how to use the code file. Provide examples and usage scenarios to help users understand how it should be utilized.
 
-Functions/Methods: If the code file contains functions or methods, document each of them individually. Include the function name, purpose, input parameters, return values, and any important details about how to use them.
+Functions/Methods: For each function or method in the code file, provide the following details - function name, purpose, input parameters, return values, and any important details about how to use them.
 
-Classes: If the code file contains classes, document each class individually. Describe the purpose of the class, its attributes, methods, and any relevant information about how to work with the class.
+Classes: For each class in the code file, provide the following details - class name, purpose, attributes, methods, and any relevant information about how to work with the class.
 
-Examples: Provide code examples to demonstrate the usage of the code file. Show how the code should be structured and provide explanations for each step.
+Examples: Provide code examples demonstrating how to use the various features of the code file.
 
 Dependencies: List any dependencies or required libraries/packages for the code file.
-
-Additional Information: Include any additional information that may be useful for understanding or working with the code file. This can include troubleshooting tips, known issues, or any special considerations.
 """
 
 folderPrompt = """
-# Title/Heading: Folder Documentation
+# Title: Folder Documentation
 
-Introduction: Provide a brief introduction to the code folder. Explain its purpose, functionality, and any important background information.
+Introduction: Provide a brief introduction about the code folder. Explain its purpose, functionality, and any important background information.
 
 Usage: Describe how to use the code folder. Provide examples and usage scenarios to help users understand how it should be utilized.
 
 Files: List all the files in the folder and provide a brief description of each file's purpose.
 
-Classes: If the code folder contains classes, document each class individually. Describe the purpose of the class, its attributes, methods, and any relevant information about how to work with the class.
+Classes: For each class in the code folder, provide the following details - class name, purpose, attributes, methods, and any relevant information about how to work with the class.
 
-Functions/Methods: If the code folder contains shared functions or methods, document each of them individually. Include the function name, purpose, input parameters, return values, and any important details about how to use them.
+Functions/Methods: For each shared function or method in the code folder, provide the following details - function name, purpose, input parameters, return values, and any important details about how to use them.
 
-Examples: Provide code examples to demonstrate the usage of the code files in the folder. Show how the code should be structured and provide explanations for each step.
+Examples: Provide code examples demonstrating how to use the various features of the code folder.
 
 Dependencies: List any dependencies or required libraries/packages for the code files in the folder.
 
-Additional Information: Include any additional information that may be useful for understanding or working with the code folder. This can include troubleshooting tips, known issues, or any special considerations.
 """
 
 
@@ -71,6 +68,34 @@ def chunkify(input_text, max_tokens):
             current_chunk = word
     chunks.append(current_chunk)
     return chunks
+
+import re
+
+def chunkify(input_text, language, max_tokens):
+    function_patterns = {
+        'python': re.compile(r"(def [\w_]+\(.+\):)"),
+        'javascript': re.compile(r"(function [\w_]+\(.+\) \{)"),
+        # Add other languages here
+    }
+
+    if language not in function_patterns:
+        raise ValueError(f"Unsupported language: {language}")
+    
+    parts = function_patterns[language].split(input_text)
+    
+    chunks = []
+    current_chunk = ''
+
+    for part in parts:
+        if len((current_chunk + ' ' + part).split(' ')) <= max_tokens:
+            current_chunk += ' ' + part
+        else:
+            chunks.append(current_chunk)
+            current_chunk = part
+    
+    chunks.append(current_chunk)
+    return chunks
+
 
 def generate_file_documentation(file_path):
     if not is_text_file(file_path):
