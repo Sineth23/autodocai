@@ -12,22 +12,44 @@ load_dotenv()
 llm = OpenAI(api_key=os.getenv("OPENAI_API_KEY"), temperature=0.2)
 
 filePrompt = """
-Write a detailed technical explanation of what this code does. 
-Focus on the high-level purpose of the code and how it may be used in the larger project.
-Include code examples where appropriate. Keep you response between 100 and 300 words. 
-DO NOT RETURN MORE THAN 300 WORDS.
-Output should be in markdown format.
-Do not just list the methods and classes in this file.
+# Title/Heading: File Documentation
+
+Introduction: Provide a brief introduction to the code file. Explain its purpose, functionality, and any important background information.
+
+Usage: Describe how to use the code file. Provide examples and usage scenarios to help users understand how it should be utilized.
+
+Functions/Methods: If the code file contains functions or methods, document each of them individually. Include the function name, purpose, input parameters, return values, and any important details about how to use them.
+
+Classes: If the code file contains classes, document each class individually. Describe the purpose of the class, its attributes, methods, and any relevant information about how to work with the class.
+
+Examples: Provide code examples to demonstrate the usage of the code file. Show how the code should be structured and provide explanations for each step.
+
+Dependencies: List any dependencies or required libraries/packages for the code file.
+
+Additional Information: Include any additional information that may be useful for understanding or working with the code file. This can include troubleshooting tips, known issues, or any special considerations.
 """
 
 folderPrompt = """
-Write a technical explanation of what the code in this file does
-and how it might fit into the larger project or work with other parts of the project.
-Give examples of how this code might be used. Include code examples where appropriate.
-Be concise. Include any information that may be relevant to a developer who is curious about this code.
-Keep you response under 400 words. Output should be in markdown format.
-Do not just list the files and folders in this folder.
+# Title/Heading: Folder Documentation
+
+Introduction: Provide a brief introduction to the code folder. Explain its purpose, functionality, and any important background information.
+
+Usage: Describe how to use the code folder. Provide examples and usage scenarios to help users understand how it should be utilized.
+
+Files: List all the files in the folder and provide a brief description of each file's purpose.
+
+Classes: If the code folder contains classes, document each class individually. Describe the purpose of the class, its attributes, methods, and any relevant information about how to work with the class.
+
+Functions/Methods: If the code folder contains shared functions or methods, document each of them individually. Include the function name, purpose, input parameters, return values, and any important details about how to use them.
+
+Examples: Provide code examples to demonstrate the usage of the code files in the folder. Show how the code should be structured and provide explanations for each step.
+
+Dependencies: List any dependencies or required libraries/packages for the code files in the folder.
+
+Additional Information: Include any additional information that may be useful for understanding or working with the code folder. This can include troubleshooting tips, known issues, or any special considerations.
 """
+
+
 
 chatPrompt = ""
 MAX_TOKENS = 3800  # OpenAI maximum is 4096. Leave some room for the prompt.
