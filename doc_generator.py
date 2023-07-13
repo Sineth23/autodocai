@@ -5,6 +5,7 @@ from langchain import PromptTemplate, LLMChain
 from langchain.llms import OpenAI
 from config import model_name
 from dotenv import load_dotenv
+from file_utils import create_directory
 import openai
 
 load_dotenv()
