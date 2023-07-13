@@ -56,7 +56,7 @@ def is_text_file(file_path):
     ext = os.path.splitext(file_path)[1]
     return ext.lower() in text_extensions
 
-def chunkify(input_text, max_tokens):
+def chunkify1(input_text, max_tokens):
     words = input_text.split(' ')
     chunks = []
     current_chunk = ''
