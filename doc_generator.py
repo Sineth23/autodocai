@@ -76,6 +76,8 @@ def generate_folder_documentation(folder_path):
     return documentation.choices[0].text.strip()
     
 def generate_documentation(local_dir):
+    autodocs_dir = os.path.join(local_dir, 'autodocs')
+    create_directory(autodocs_dir)
     for root, dirs, files in os.walk(local_dir):
         for file in files:
             file_path = os.path.join(root, file)
