@@ -15,7 +15,7 @@ def main():
         generate_documentation(local_dir)
         print("Documentation generated.")
         create_directory('autodocs')
-        move_files_to_directory(f'home/ec2-user/autodocai/{local_dir}', 'autodocs')
+        move_files_to_directory(local_dir, 'autodocs')
         print("Documentation moved to autodocs directory.")
 
 if __name__ == '__main__':
