@@ -5,7 +5,7 @@ from langchain import PromptTemplate, LLMChain
 from langchain.llms import OpenAI
 from config import model_name
 from dotenv import load_dotenv
-from file_utils import create_directory
+from file_utils import create_directory, move_files_to_directory
 import openai
 
 load_dotenv()
@@ -93,5 +93,6 @@ def generate_documentation(local_dir):
             if documentation is not None:
                 with open(root + '/README.md', 'w') as doc_file:
                     doc_file.write(documentation)
+    move_files_to_directory(local_dir, autodocs_dir)
 
 
