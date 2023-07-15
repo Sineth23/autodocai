@@ -24,7 +24,6 @@ Classes: For each class in the code file, provide the following details - class 
 
 Examples: Provide code examples demonstrating how to use the various features of the code file.
 
-Dependencies: List any dependencies or required libraries/packages for the code file.
 """
 
 folderPrompt = """
@@ -42,7 +41,6 @@ Functions/Methods: For each shared function or method in the code folder, provid
 
 Examples: Provide code examples demonstrating how to use the various features of the code folder.
 
-Dependencies: List any dependencies or required libraries/packages for the code files in the folder.
 
 """
 
@@ -56,18 +54,20 @@ def is_text_file(file_path):
     ext = os.path.splitext(file_path)[1]
     return ext.lower() in text_extensions
 
+
 def chunkify(input_text, max_tokens):
-    words = input_text.split(' ')
+    lines = input_text.split('\n')
     chunks = []
     current_chunk = ''
-    for word in words:
-        if len((current_chunk + ' ' + word).split(' ')) <= max_tokens:
-            current_chunk += ' ' + word
+    for line in lines:
+        if len((current_chunk + ' ' + line).split(' ')) <= max_tokens:
+            current_chunk += ' ' + line
         else:
             chunks.append(current_chunk)
-            current_chunk = word
+            current_chunk = line
     chunks.append(current_chunk)
     return chunks
+
 
 
 
@@ -120,27 +120,27 @@ def generate_documentation(local_dir):
 
 import re
 
-def chunkify1(input_text, language, max_tokens):
-    function_patterns = {
-        'python': re.compile(r"(def [\w_]+\(.+\):)"),
-        'javascript': re.compile(r"(function [\w_]+\(.+\) \{)"),
-        # Add other languages here
-    }
+#def chunkify1(input_text, language, max_tokens):
+ #   function_patterns = {
+ #       'python': re.compile(r"(def [\w_]+\(.+\):)"),
+ #       'javascript': re.compile(r"(function [\w_]+\(.+\) \{)"),
+ #       # Add other languages here
+ #   }
 
-    if language not in function_patterns:
-        raise ValueError(f"Unsupported language: {language}")
+    #if language not in function_patterns:
+    #    raise ValueError(f"Unsupported language: {language}")
     
-    parts = function_patterns[language].split(input_text)
+   # parts = function_patterns[language].split(input_text)
     
-    chunks = []
-    current_chunk = ''
+    #chunks = []
+    #current_chunk = ''
 
-    for part in parts:
-        if len((current_chunk + ' ' + part).split(' ')) <= max_tokens:
-            current_chunk += ' ' + part
-        else:
-            chunks.append(current_chunk)
-            current_chunk = part
+    #for part in parts:
+     #   if len((current_chunk + ' ' + part).split(' ')) <= max_tokens:
+           # current_chunk += ' ' + part
+      #  else:
+       #     chunks.append(current_chunk)
+        #    current_chunk = part
     
-    chunks.append(current_chunk)
-    return chunks
+   # chunks.append(current_chunk)
+    #return chunks
