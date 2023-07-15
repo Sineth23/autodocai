@@ -9,7 +9,7 @@ from file_utils import create_directory, move_files_to_directory
 import openai
 
 load_dotenv()
-llm = OpenAI(api_key=os.getenv("OPENAI_API_KEY"), temperature=0.2)
+llm = OpenAI(api_key=openai.api_key , temperature=0.2)
 
 filePrompt = """
 # Title: File Documentation
@@ -54,7 +54,6 @@ def is_text_file(file_path):
     ext = os.path.splitext(file_path)[1]
     return ext.lower() in text_extensions
 
-
 def chunkify(input_text, max_tokens):
     lines = input_text.split('\n')
     chunks = []
@@ -71,8 +70,7 @@ def chunkify(input_text, max_tokens):
 
 
 
-
-def generate_file_documentation(file_path):
+def generate_file_documentation(file_path, model="gpt-3.5-turbo"):
     if not is_text_file(file_path):
         print(f'Skipping non-text file: {file_path}')
         return None
@@ -81,10 +79,12 @@ def generate_file_documentation(file_path):
         chunks = chunkify(code, MAX_TOKENS)
     documentation_parts = []
     for chunk in chunks:
-        prompt = f'{filePrompt} {chunk}'
+        # Note the change in how we structure the prompt
+        messages = [{"role": "system", "content": filePrompt}, {"role": "user", "content": chunk}]
         try:
-            response = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.2, max_tokens=300)
-            documentation_parts.append(response.choices[0].text.strip())
+            # We use the messages variable in the call to openai.ChatCompletion.create
+            response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=300)
+            documentation_parts.append(response['choices'][0]['message']['content'].strip())
         except Exception as e:
             print(f"An error occurred: {e}")
     documentation = '\n\n'.join(documentation_parts)
@@ -92,11 +92,20 @@ def generate_file_documentation(file_path):
 
 
 
-def generate_folder_documentation(folder_path):
+
+def generate_folder_documentation(folder_path, model="gpt-3.5-turbo"):
     files = [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
     prompt = folderPrompt + ' '.join(files)
-    documentation = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.2, max_tokens=400)
-    return documentation.choices[0].text.strip()
+    # Note the change to openai.ChatCompletion.create
+    messages = [{"role": "system", "content": prompt}]
+    try:
+        response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=400)
+        documentation = response['choices'][0]['message']['content']
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        documentation = ""
+    return documentation.strip()
+
     
 def generate_documentation(local_dir):
     autodocs_dir = os.path.join(local_dir, 'autodocs')
@@ -116,31 +125,3 @@ def generate_documentation(local_dir):
                 with open(root + '/README.md', 'w') as doc_file:
                     doc_file.write(documentation)
     move_files_to_directory(local_dir, autodocs_dir)
-
-
-import re
-
-#def chunkify1(input_text, language, max_tokens):
- #   function_patterns = {
- #       'python': re.compile(r"(def [\w_]+\(.+\):)"),
- #       'javascript': re.compile(r"(function [\w_]+\(.+\) \{)"),
- #       # Add other languages here
- #   }
-
-    #if language not in function_patterns:
-    #    raise ValueError(f"Unsupported language: {language}")
-    
-   # parts = function_patterns[language].split(input_text)
-    
-    #chunks = []
-    #current_chunk = ''
-
-    #for part in parts:
-     #   if len((current_chunk + ' ' + part).split(' ')) <= max_tokens:
-           # current_chunk += ' ' + part
-      #  else:
-       #     chunks.append(current_chunk)
-        #    current_chunk = part
-    
-   # chunks.append(current_chunk)
-    #return chunks
