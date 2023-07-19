@@ -10,7 +10,7 @@ import openai
 import tiktoken
 
 load_dotenv()
-openai.api_key = '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'
+openai.api_key = 'openai.api_key'
 
 llm = OpenAI(api_key=openai.api_key , temperature=0.2)
 
