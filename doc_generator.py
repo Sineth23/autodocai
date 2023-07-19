@@ -1,4 +1,4 @@
-#doc_generator.py
+
 
 import os
 from langchain import PromptTemplate, LLMChain
@@ -7,8 +7,11 @@ from config import model_name
 from dotenv import load_dotenv
 from file_utils import create_directory, move_files_to_directory
 import openai
+import tiktoken
 
 load_dotenv()
+openai.api_key = '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'
+
 llm = OpenAI(api_key=openai.api_key , temperature=0.2)
 
 filePrompt = """
@@ -50,9 +53,27 @@ chatPrompt = ""
 MAX_TOKENS = 3800  # OpenAI maximum is 4096. Leave some room for the prompt.
 
 def is_text_file(file_path):
-    text_extensions = ['.txt', '.md', '.py', '.java', '.cpp', '.h', '.html', '.css', '.js']
+    #text_extensions = ['.txt', '.md', '.py', '.java', '.cpp', '.h', '.html', '.css', '.js', 'jsx', 'ts']
+    text_extensions = ['ipynb','.py', '.java', '.cpp', '.h', '.html', '.css', '.js', 'jsx', 'ts']
     ext = os.path.splitext(file_path)[1]
     return ext.lower() in text_extensions
+
+
+
+
+def chunkify1(input_text, max_tokens):
+    lines = input_text.split('\n')
+    chunks = []
+    current_chunk = ''
+    for line in lines:
+        # Subtract a buffer for system message and other tokens
+        if len((current_chunk + ' ' + line).split(' ')) <= max_tokens - 500: 
+            current_chunk += ' ' + line
+        else:
+            chunks.append(current_chunk)
+            current_chunk = line
+    chunks.append(current_chunk)
+    return chunks
 
 def chunkify(input_text, max_tokens):
     lines = input_text.split('\n')
@@ -70,6 +91,8 @@ def chunkify(input_text, max_tokens):
 
 
 
+
+
 def generate_file_documentation(file_path, model="gpt-3.5-turbo"):
     if not is_text_file(file_path):
         print(f'Skipping non-text file: {file_path}')
@@ -78,19 +101,21 @@ def generate_file_documentation(file_path, model="gpt-3.5-turbo"):
         code = file.read()
         chunks = chunkify(code, MAX_TOKENS)
     documentation_parts = []
+
+    # We start the conversation with the system message
+    conversation = [{"role": "system", "content": filePrompt}]
+
     for chunk in chunks:
-        # Note the change in how we structure the prompt
-        messages = [{"role": "system", "content": filePrompt}, {"role": "user", "content": chunk}]
+        # Add user messages to the conversation
+        conversation.append({"role": "user", "content": chunk})
         try:
-            # We use the messages variable in the call to openai.ChatCompletion.create
-            response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=300)
+            # We use the conversation in the call to openai.ChatCompletion.create
+            response = openai.ChatCompletion.create(model=model, messages=conversation, max_tokens=300)
             documentation_parts.append(response['choices'][0]['message']['content'].strip())
         except Exception as e:
             print(f"An error occurred: {e}")
     documentation = '\n\n'.join(documentation_parts)
     return documentation.strip()
-
-
 
 
 def generate_folder_documentation(folder_path, model="gpt-3.5-turbo"):
@@ -125,3 +150,4 @@ def generate_documentation(local_dir):
                 with open(root + '/README.md', 'w') as doc_file:
                     doc_file.write(documentation)
     move_files_to_directory(local_dir, autodocs_dir)
+
